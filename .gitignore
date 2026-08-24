@@ -1,0 +1,6 @@
+# The extension's private signing key. Whoever holds this can publish a build
+# with MOBero's extension ID. Never commit it, never ship it.
+*.pem
+
+node_modules/
+.DS_Store

@@ -1,0 +1,479 @@
+@font-face {
+  font-family: "Press Start 2P";
+  src: url("press-start-2p.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  /* Matches mobero.org: violet ground, lime action, pixel type. */
+  --bg: #0b0518;
+  --surface: #1c1138;
+  --line: #35215f;
+  --line-lit: #573399;
+
+  --accent: #8dff5c;
+  --gold: #ffc93c;
+  --magenta: #ff5cc8;
+  --cyan: #5ce4ff;
+  --ink: #08040f;
+  --text: #f4efff;
+  --muted: #b0a0d0;
+  --faint: #7b6aa0;
+  --red: #ff7a7a;
+
+  --radius: 5px;
+  --pixel: "Press Start 2P", ui-monospace, Menlo, monospace;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------------------------------------------ header */
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 18px;
+}
+
+.face {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 var(--ink));
+}
+
+.face svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The mobster bobs only while the miner is actually running — the one piece
+   of motion in the UI, and it means something. */
+.face.mining {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .face.mining { animation: none; }
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--pixel);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--accent);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.title p {
+  margin: 1px 0 0;
+  color: var(--faint);
+  font-size: 11px;
+}
+
+/* ------------------------------------------------------------------- stats */
+
+.stats {
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  outline: 1px solid var(--line-lit);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.hash {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.hash span {
+  color: var(--accent);
+  font-family: var(--pixel);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.hash small {
+  color: var(--faint);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.earn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+}
+
+.earn dt {
+  color: var(--cyan);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.earn dd {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: 3px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.earn dd small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.earn-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 0;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.earn-note small {
+  font-size: 9px;
+  opacity: 0.75;
+}
+
+/* ----------------------------------------------------------------- payouts */
+
+.payouts {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 0 0 14px;
+}
+
+.payouts h2 {
+  margin: 0 0 4px;
+  font-family: var(--pixel);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--accent);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.payouts .lead {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.payouts .row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.payouts .row button.primary {
+  flex: 1;
+}
+
+.payouts .row button:not(.primary) {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--faint);
+  font: 11px var(--mono);
+  padding: 8px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.payouts .row button:not(.primary):hover:not(:disabled) {
+  border-color: var(--line-lit);
+  color: var(--text);
+}
+
+.payouts .row button:not(.primary):disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.payouts .note {
+  display: block;
+  margin-top: 8px;
+  color: var(--faint);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+
+/* ------------------------------------------------------------------- setup */
+
+label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+label .value {
+  float: right;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 9px 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: 12px var(--mono);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input[type="text"]:focus {
+  border-color: var(--line-lit);
+}
+
+input[type="text"].bad {
+  border-color: var(--red);
+}
+
+input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.hint {
+  margin: 7px 0 16px;
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+details .hint:last-child {
+  margin-bottom: 4px;
+}
+
+.hint code {
+  font: 0.92em var(--mono);
+  color: var(--cyan);
+}
+
+details {
+  margin-bottom: 4px;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--faint);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 9px;
+}
+
+.notice,
+.error {
+  margin: 0 0 12px;
+  padding: 9px 10px;
+  border-radius: var(--radius);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.notice {
+  background: rgba(255, 92, 200, 0.1);
+  border: 1px solid rgba(255, 92, 200, 0.35);
+  color: var(--magenta);
+}
+
+.error {
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.28);
+  color: var(--red);
+}
+
+/* --------------------------------------------------------------- onboarding */
+
+.onboard h2 {
+  margin: 0 0 8px;
+  font-family: var(--pixel);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gold);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.onboard-lead {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.onboard-steps {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.onboard-steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 7px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.onboard-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  background: var(--line);
+  color: var(--text);
+  font-family: var(--pixel);
+  font-size: 8px;
+  display: grid;
+  place-items: center;
+}
+
+/* Same treatment as the command on the site: black slab, lime text, copy on
+   the right. Whatever they saw there, they see again here. */
+.cmd {
+  display: flex;
+  align-items: stretch;
+  background: var(--ink);
+  border: 1px solid var(--line-lit);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.cmd code {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 10px;
+  font: 11px/1.4 var(--mono);
+  color: var(--accent);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.cmd button {
+  flex: none;
+  padding: 0 10px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  color: var(--faint);
+  font-family: var(--pixel);
+  font-size: 8px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.cmd button:hover {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.cmd button.done {
+  color: var(--accent);
+}
+
+.onboard-detail {
+  margin: 0 0 4px;
+}
+
+.onboard-detail code {
+  display: block;
+  padding: 8px 9px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--faint);
+  font: 10px/1.45 var(--mono);
+  word-break: break-word;
+}
+
+/* ------------------------------------------------------------------ button */
+
+button.primary {
+  width: 100%;
+  padding: 12px;
+  font-family: var(--pixel);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+button.primary:hover:not(:disabled) {
+  background: #a9ff85;
+}
+
+button.primary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+button.primary.running {
+  background: transparent;
+  border-color: var(--line-lit);
+  color: var(--muted);
+}
+
+button.primary.running:hover {
+  background: transparent;
+  border-color: var(--red);
+  color: var(--red);
+}

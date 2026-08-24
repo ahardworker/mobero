@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <div class="face" id="face" aria-hidden="true">
+        <svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="4" y="2" width="8" height="1" fill="#4a4a55"/><rect x="3" y="3" width="10" height="1" fill="#4a4a55"/><rect x="2" y="4" width="12" height="1" fill="#16161c"/><rect x="4" y="5" width="8" height="1" fill="#f0b183"/><rect x="3" y="6" width="10" height="1" fill="#101014"/><rect x="4" y="7" width="8" height="1" fill="#f0b183"/><rect x="4" y="8" width="1" height="1" fill="#f0b183"/><rect x="5" y="8" width="6" height="1" fill="#ffffff"/><rect x="11" y="8" width="1" height="1" fill="#f0b183"/><rect x="5" y="9" width="6" height="1" fill="#f0b183"/><rect x="3" y="10" width="3" height="1" fill="#1b1b22"/><rect x="6" y="10" width="4" height="1" fill="#f2f2f5"/><rect x="10" y="10" width="3" height="1" fill="#1b1b22"/><rect x="2" y="11" width="4" height="1" fill="#1b1b22"/><rect x="6" y="11" width="1" height="1" fill="#f2f2f5"/><rect x="7" y="11" width="2" height="1" fill="#e03131"/><rect x="9" y="11" width="1" height="1" fill="#f2f2f5"/><rect x="10" y="11" width="4" height="1" fill="#1b1b22"/><rect x="2" y="12" width="5" height="1" fill="#1b1b22"/><rect x="7" y="12" width="2" height="1" fill="#e03131"/><rect x="9" y="12" width="5" height="1" fill="#1b1b22"/><rect x="1" y="13" width="6" height="1" fill="#1b1b22"/><rect x="7" y="13" width="2" height="1" fill="#e03131"/><rect x="9" y="13" width="6" height="1" fill="#1b1b22"/><rect x="1" y="14" width="14" height="1" fill="#1b1b22"/></svg>
+      </div>
+      <div class="title">
+        <h1>MOBero</h1>
+        <p id="tagline">Ride with the Mob — join the mining pool to strengthen the network</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="stats" id="stats" hidden>
+        <div class="hash">
+          <span id="hashrate">0 H/s</span>
+          <small id="hashrate-avg">10s avg</small>
+        </div>
+        <div class="earn">
+          <div>
+            <dt>Session</dt>
+            <dd>
+              <small id="earn-session-usd">$0.00</small>
+              <span id="earn-session">0.00</span>
+              <small id="earn-session-picon">0 picon</small>
+            </dd>
+          </div>
+          <div>
+            <dt>Total</dt>
+            <dd>
+              <small id="earn-total-usd">$0.00</small>
+              <span id="earn-total">0.00</span>
+              <small id="earn-total-picon">0 picon</small>
+            </dd>
+          </div>
+        </div>
+        <p class="earn-note">
+          <span id="meta">shares 0 · threads — · —</span>
+          <small>* estimated — pool shares × network rate · solo blocks counted at full reward</small>
+        </p>
+      </section>
+
+      <!-- Shown instead of the setup form when the helper isn't reachable. The
+           first run of a load-unpacked extension is where people get stranded,
+           so this walks the whole way rather than printing what went wrong. -->
+      <section class="onboard" id="onboard" hidden>
+        <h2 id="onboard-title">One step left</h2>
+        <p class="onboard-lead" id="onboard-lead"></p>
+        <ol class="onboard-steps" id="onboard-steps"></ol>
+        <div class="cmd" id="onboard-cmd-row">
+          <code id="onboard-cmd"></code>
+          <button id="onboard-copy" type="button" aria-label="Copy command">Copy</button>
+        </div>
+        <p class="hint" id="onboard-note"></p>
+        <details class="onboard-detail">
+          <summary>What went wrong</summary>
+          <code id="onboard-raw"></code>
+        </details>
+      </section>
+
+      <section class="setup" id="setup">
+        <label for="wallet">Your Monero address</label>
+        <input
+          id="wallet"
+          type="text"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="4... or 8..."
+        />
+        <p class="hint" id="wallet-hint">Payouts go straight here. MOBero never sees a cent.</p>
+
+        <label for="threads">
+          CPU threads <span class="value" id="threads-value">—</span>
+        </label>
+        <input id="threads" type="range" min="1" max="8" value="4" />
+        <p class="hint" id="threads-hint">Half your cores keeps the laptop usable.</p>
+
+        <details>
+          <summary>Pool</summary>
+          <input
+            id="pool"
+            type="text"
+            spellcheck="false"
+            autocomplete="off"
+            value="pool.supportxmr.com:443"
+          />
+          <p class="hint">
+            Point it at your own node for solo mining — <code>127.0.0.1:18083</code>
+            — and every block you find is yours, in full.
+          </p>
+        </details>
+      </section>
+
+      <!-- Where money actually lives once it leaves the miner. Always shown:
+           users want to check their pool balance even when stopped, and the
+           pool is the only source of truth for what they really own. -->
+      <section class="payouts" id="payouts">
+        <h2 id="payouts-title">Payouts</h2>
+        <p class="lead" id="payouts-lead">
+          Earnings accumulate at your pool until they cross the payout
+          threshold, then they sweep straight to your address.
+        </p>
+        <div class="row">
+          <button id="payouts-open" type="button" class="primary">Check balance →</button>
+          <button id="payouts-copy" type="button">Copy address</button>
+        </div>
+        <small class="note" id="payouts-note">pool.supportxmr.com · 0.01 XMR threshold</small>
+      </section>
+
+      <p class="notice" id="notice" hidden></p>
+      <p class="error" id="error" hidden></p>
+    </main>
+
+    <footer>
+      <button id="toggle" class="primary">Start mining</button>
+    </footer>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
