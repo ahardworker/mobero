@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=MOBero
+Comment=One-click Monero mining, wearing a fedora
+Icon=utilities-terminal
+Terminal=true
+Categories=Utility;
+# Runs the portable launcher in a terminal. Because the path is relative to
+# where this file lives, mark the .desktop trusted (or "Allow launching" in your
+# file manager) after copying the MOBero folder into place.
+Exec=bash -c 'cd "$(dirname "%k")" && bash ./mobero.command'

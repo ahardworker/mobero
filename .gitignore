@@ -4,3 +4,6 @@
 
 node_modules/
 .DS_Store
+
+# Build artifact from make-zip.sh — regenerated, not source.
+MOBero.zip

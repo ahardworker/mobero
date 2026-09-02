@@ -1,38 +1,71 @@
 # MOBero
 
-One-click Monero mining, wearing a fedora.
+One-click Monero mining, wearing a fedora. **macOS and Linux.**
 
 You paste your own XMR address. The pool pays that address directly. MOBero has
 no wallet, no fee, and no server — there is nowhere for your money to go except
 to you.
 
+There are two ways to run it, and they share the same mining core
+([`host/miner.js`](host/miner.js)): a **standalone CLI** (no browser needed) and
+an optional **browser extension** for Chrome, Chromium, Brave, or Edge.
+
 ## Install
 
-```bash
-curl -fsSL https://mobero.org/install.sh | sh
-```
-
-That script is [`web/install.sh`](web/install.sh) in this repo — read it before
-you pipe it anywhere. It downloads the extension and native host, produces a
-native `xmrig` with TLS (building one from source on Apple Silicon if your
-machine doesn't already have a good one), and registers the host with whichever
-Chromium browsers you have. It does not start mining, and it never asks for a
-wallet.
-
-From a clone instead:
+From a clone:
 
 ```bash
 ./install.sh
 ```
 
-Either way, the extension has to be loaded by hand:
+That installs the `mobero` CLI to `~/.local/bin`, registers the extension's
+native host with whichever Chromium browsers you have, and finds or produces a
+TLS-capable `xmrig` native to your machine:
 
-1. open `chrome://extensions`
+- an existing good binary wins;
+- on Apple Silicon it builds a native arm64 one
+  ([`host/build-xmrig-arm64.sh`](host/build-xmrig-arm64.sh));
+- on Linux x86_64 it downloads xmrig's official static build (which ships with
+  TLS);
+- otherwise it falls back to `brew` (macOS) or tells you the one package to
+  install (Linux).
+
+It does not start mining and never asks for a wallet.
+
+## Standalone CLI
+
+The browser-free way. After `./install.sh` (and, if it warned you, adding
+`~/.local/bin` to your `PATH`):
+
+```bash
+mobero start <your-monero-address>   # begins mining, detached
+mobero status --watch                # live hashrate + accepted shares
+mobero stop
+mobero probe                         # checks xmrig / TLS / architecture
+```
+
+`start` takes `--pool host:port`, `--threads N`, `--worker id`, `--donate N`,
+`--priority N`, and `--no-huge-pages`. Run `mobero help` for the full list. The
+miner is spawned detached, so it keeps running after the command returns —
+`mobero stop` (or the command in [Turning it off](#turning-it-off)) ends it.
+
+## Browser extension (optional)
+
+Load it by hand:
+
+1. open `chrome://extensions` (or `brave://extensions`, `edge://extensions`)
 2. turn on **Developer mode**
-3. **Load unpacked** → `~/MOBero/extension` (or this repo's `extension/`)
+3. **Load unpacked** → this repo's `extension/`
 4. the ID should read `bgnkdiknnhpffnhhehnbodmnjcgbjoap`
 
-Click the mobster, paste your address, hit Start. macOS only for now.
+Click the mobster, paste your address, hit Start.
+
+**Does Brave allow this?** Yes. The stores (Chrome Web Store, Firefox AMO) ban
+*publishing* mining extensions, which is why this one is load-unpacked — but no
+Chromium browser blocks *running* one. And MOBero never mines inside the
+browser anyway: the extension only starts, stops, and reads a native `xmrig`
+process over native messaging. If you'd rather skip the extension entirely, use
+the CLI above.
 
 ## No exceptions
 
@@ -48,17 +81,20 @@ to send it to.
 ## How it fits together
 
 ```
-popup  ──chrome.runtime──>  service worker  ──native messaging──>  mobero-host.js
-  │                                                                      │
-  │                                                                 spawns detached
-  │                                                                      ▼
-  └────────────── polls http://127.0.0.1:45580 ──────────────────────  xmrig
+popup  ──chrome.runtime──>  service worker  ──native messaging──>  mobero-host.js ┐
+  │                                                                                │
+mobero (CLI)  ─────────────────────────────────────────────────────────────────> miner.js
+  │                                                                                │
+  │                                                                          spawns detached
+  │                                                                                ▼
+  └────────────── polls http://127.0.0.1:45580 ────────────────────────────────  xmrig
 ```
 
-The host spawns xmrig **detached**, so mining survives the popup closing and the
-service worker being evicted. Live stats come from xmrig's own HTTP API, which
-the extension polls directly — the host is only ever asked to start, stop, or
-report status.
+Both front ends call the same core, [`host/miner.js`](host/miner.js), which
+spawns xmrig **detached** — so mining survives the popup closing, the service
+worker being evicted, or the CLI process exiting. Live stats come from xmrig's
+own HTTP API, which the extension and `mobero status` poll directly; the core is
+only ever asked to start, stop, or report status.
 
 State lives in `~/.mobero/state.json` (pid + API token). Logs are in
 `~/.mobero/xmrig.log`.
@@ -83,9 +119,11 @@ worse than no numbers.
 
 ## Getting the most out of it
 
-- **Native arm64 matters most.** Under Rosetta, RandomX runs at a fraction of
-  native speed. The installer builds a native binary rather than let that happen
-  quietly, and the popup warns you if it spots a translated one.
+- **Native architecture matters most.** On Apple Silicon, RandomX under Rosetta
+  runs at a fraction of native speed, so the installer builds a native arm64
+  binary rather than let that happen quietly, and both front ends warn you if
+  they spot a translated one. On Linux x86_64 the installer pulls xmrig's
+  official native static build, so there's no translation penalty to fight.
 - **Threads = performance cores**, not total cores. E-cores add heat more than
   hashes.
 - **Leave ~2.3 GB of RAM free.** Below that, RandomX drops to light mode —
@@ -102,15 +140,16 @@ to read every line that decides where the money goes.
 
 ## Turning it off
 
-Click Stop. If the browser is gone and the miner isn't:
+`mobero stop`, or click Stop in the popup. If both are gone and the miner isn't:
 
 ```bash
 kill $(python3 -c "import json;print(json.load(open('$HOME/.mobero/state.json'))['pid'])")
 ```
 
-To uninstall entirely: `rm -rf ~/MOBero ~/.mobero`, then delete
+To uninstall entirely: `rm -rf ~/.mobero ~/.local/bin/mobero`, then delete
 `com.mobero.host.json` from the `NativeMessagingHosts` folders listed in
-[`install.sh`](install.sh).
+[`install.sh`](install.sh) (under `~/Library/Application Support/…` on macOS,
+`~/.config/…` on Linux).
 
 ## License
 
